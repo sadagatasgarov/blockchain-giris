@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "Protobuffer ile integrasiya etdik"
+	@git commit -m "Hashblock yaradildi sing edildi test edildi"
 	@git push -u origin main
 
 .PHONY: proto

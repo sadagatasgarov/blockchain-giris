@@ -36,5 +36,5 @@ func TestPublictestToAddress(t *testing.T) {
 	privKey :=GeneratePrivteKey()
 	pubKey := privKey.Public()
 	address:=pubKey.Address()
-	assert.Equal(t, addressLen, len(address.value))
+	assert.Equal(t, addressLen, len(address.Bytes()))
 }

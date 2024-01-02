@@ -9,5 +9,5 @@ test:
 
 git:
 	@git add .
-	@git commit -m "Addres elave edildi"
+	@git commit -m "adrese seedler de yazildi.test de yazildi"
 	@git push -u origin main

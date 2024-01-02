@@ -31,3 +31,10 @@ func TestPrivateKeySign(t *testing.T) {
 	assert.False(t, sig.Verify(invalidPubKey, msg))
 
 }
+
+func TestPublictestToAddress(t *testing.T) {
+	privKey :=GeneratePrivteKey()
+	pubKey := privKey.Public()
+	address:=pubKey.Address()
+	assert.Equal(t, addressLen, len(address.value))
+}

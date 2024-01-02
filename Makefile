@@ -9,5 +9,5 @@ test:
 
 git:
 	@git add .
-	@git commit -m "Public ve private keyler hazir"
+	@git commit -m "Addres elave edildi"
 	@git push -u origin main

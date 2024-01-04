@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "UTXO (Odenisden qalan meblegi simulaysiya edirik)21"
+	@git commit -m "UTXO (Odenisden qalan meblegi kodlamaq) test edildi)"
 	@git push -u origin main
 
 .PHONY: proto

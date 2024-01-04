@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"gitlab.com/sadagatasgarov/bchain/crypto"
 	"gitlab.com/sadagatasgarov/bchain/proto"
 	"gitlab.com/sadagatasgarov/bchain/util"
@@ -13,7 +14,9 @@ import (
 
 // want to send 5 coins to "AAA"
 
-//input
+// 2 output
+// 5 to the dude we wanne send
+// 95 back to our address
 
 func TestNewTransaction(t *testing.T) {
 	fromPrivKey := crypto.GeneratePrivteKey()
@@ -49,5 +52,7 @@ func TestNewTransaction(t *testing.T) {
 	input.Signature = sig.Bytes()
 
 	fmt.Printf("%+v\n", tx)
+
+	assert.True(t, VerifyTransaction(tx))
 
 }

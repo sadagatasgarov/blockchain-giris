@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "go run main.go Grpc impelmentasiyasi"
+	@git commit -m "go run main.go Coding the node with GRPC transport - circuit breaking & rate limiting"
 	@git push -u origin main
 
 .PHONY: proto

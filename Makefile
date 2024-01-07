@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "UTXO (Odenisden qalan meblegi kodlamaq) test edildi)"
+	@git commit -m "go run main.go Grpc impelmentasiyasi"
 	@git push -u origin main
 
 .PHONY: proto

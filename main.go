@@ -43,7 +43,6 @@ func makeTransaction() {
 
 	tx := &proto.Transaction{
 		Version: 1,
-
 	}
 
 	_, err = c.HandleTransaction(context.TODO(), tx)

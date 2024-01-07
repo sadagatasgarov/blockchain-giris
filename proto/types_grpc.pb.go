@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
-	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*None, error)
+	HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Ack, error)
 }
 
 type nodeClient struct {
@@ -37,8 +37,8 @@ func NewNodeClient(cc grpc.ClientConnInterface) NodeClient {
 	return &nodeClient{cc}
 }
 
-func (c *nodeClient) HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*None, error) {
-	out := new(None)
+func (c *nodeClient) HandleTransaction(ctx context.Context, in *Transaction, opts ...grpc.CallOption) (*Ack, error) {
+	out := new(Ack)
 	err := c.cc.Invoke(ctx, Node_HandleTransaction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *nodeClient) HandleTransaction(ctx context.Context, in *Transaction, opt
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility
 type NodeServer interface {
-	HandleTransaction(context.Context, *Transaction) (*None, error)
+	HandleTransaction(context.Context, *Transaction) (*Ack, error)
 	mustEmbedUnimplementedNodeServer()
 }
 
@@ -58,7 +58,7 @@ type NodeServer interface {
 type UnimplementedNodeServer struct {
 }
 
-func (UnimplementedNodeServer) HandleTransaction(context.Context, *Transaction) (*None, error) {
+func (UnimplementedNodeServer) HandleTransaction(context.Context, *Transaction) (*Ack, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleTransaction not implemented")
 }
 func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}

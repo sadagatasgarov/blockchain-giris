@@ -14,7 +14,7 @@ import (
 
 func main() {
 	node := node.NewNode()
-	
+
 	go func() {
 		for {
 			time.Sleep(2 * time.Second)
@@ -22,7 +22,13 @@ func main() {
 		}
 	}()
 	log.Fatal(node.Start(":3000"))
-	
+
+}
+
+func makeNode(listenAddr string) *node.Node {
+	n := node.NewNode()
+	go n.Start(listenAddr)
+	return n
 }
 
 func makeTransaction() {

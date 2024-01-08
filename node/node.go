@@ -43,12 +43,12 @@ func (n *Node) Start(listenAddr string) error {
 	opts := []grpc.ServerOption{}
 	grpcServer := grpc.NewServer(opts...)
 	ln, err := net.Listen("tcp", listenAddr)
-	fmt.Println("node running on port: ", listenAddr)
-
 	if err != nil {
 		return err
 	}
 	proto.RegisterNodeServer(grpcServer, n)
+	fmt.Println("node running on port: ", ":3000")
+
 	return grpcServer.Serve(ln)
 }
 

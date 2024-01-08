@@ -4,8 +4,6 @@ import (
 	"context"
 	"log"
 
-	"time"
-
 	"gitlab.com/sadagatasgarov/bchain/node"
 	"gitlab.com/sadagatasgarov/bchain/proto"
 	"google.golang.org/grpc"
@@ -13,21 +11,29 @@ import (
 )
 
 func main() {
-	node := node.NewNode()
+	// node := node.NewNode()
 
-	go func() {
-		for {
-			time.Sleep(2 * time.Second)
-			makeTransaction()
-		}
-	}()
-	log.Fatal(node.Start(":3000"))
+	// go func() {
+	// 	for {
+	// 		time.Sleep(2 * time.Second)
+	// 		makeTransaction()
+	// 	}
+	// }()
+	// log.Fatal(node.Start(":3000"))
+	makeNode(":3000", []string{})
+	makeNode(":4000", []string{":3000"})
+	select{}
 
 }
 
-func makeNode(listenAddr string) *node.Node {
+func makeNode(listenAddr string, bootstrapNodes []string) *node.Node {
 	n := node.NewNode()
 	go n.Start(listenAddr)
+	if len(bootstrapNodes) > 0 {
+		if err := n.BootstrapNetwork(bootstrapNodes); err != nil {
+			log.Fatal(err)
+		}
+	}
 	return n
 }
 

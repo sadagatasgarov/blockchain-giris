@@ -11,19 +11,11 @@ import (
 )
 
 func main() {
-	// node := node.NewNode()
-
-	// go func() {
-	// 	for {
-	// 		time.Sleep(2 * time.Second)
-	// 		makeTransaction()
-	// 	}
-	// }()
-	// log.Fatal(node.Start(":3000"))
 	makeNode(":3000", []string{})
 	makeNode(":4000", []string{":3000"})
-	select{}
 
+	//makeNode(":5000", []string{":4000"})
+	select {}
 }
 
 func makeNode(listenAddr string, bootstrapNodes []string) *node.Node {

@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "23.54 Peer To Peer with GRPC - circuit breaking & rate limiting"
+	@git commit -m "logger elave etdik Peer To Peer with GRPC - circuit breaking & rate limiting- logger elave etik"
 	@git push -u origin main
 
 .PHONY: proto

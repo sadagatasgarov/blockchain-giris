@@ -27,10 +27,8 @@ type Node struct {
 func NewNode() *Node {
 	loggerConfig := zap.NewDevelopmentConfig()
 	loggerConfig.Development = true
-	//loggerConfig.EncoderConfig.TimeKey = "timestamp"
 	loggerConfig.EncoderConfig.TimeKey = ""
-	//loggerConfig.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
-	//logger, _ := zap.NewProduction()
+
 	logger, _ := loggerConfig.Build()
 	return &Node{
 		peers:   make(map[proto.NodeClient]*proto.Version),
@@ -39,44 +37,7 @@ func NewNode() *Node {
 	}
 }
 
-func (n *Node) addPeer(c proto.NodeClient, v *proto.Version) {
-	n.peerlock.Lock()
-	defer n.peerlock.Unlock()
-
-	//fmt.Printf("[%s]new peer connected: (%s) - height:%d\n", n.listenAddr, v.ListenAddr, v.Height)
-
-	//n.logger.Debugf("new peer connected addr - [%s], height - [%d]", v.ListenAddr, v.Height)
-	n.logger.Debugw("new peer connected", "addr", v.ListenAddr, "height", v.Height)
-
-	n.peers[c] = v
-}
-
-func (n *Node) deletePeer(c proto.NodeClient) {
-	n.peerlock.Lock()
-	defer n.peerlock.Unlock()
-	delete(n.peers, c)
-}
-
-func (n *Node) BootstrapNetwork(addrs []string) error {
-	for _, addr := range addrs {
-		c, err := makeNodeClient(addr)
-		if err != nil {
-			return err
-		}
-
-		v, err := c.Handshake(context.Background(), n.getVersion())
-		if err != nil {
-			// fmt.Println("dial handshake error", err)
-			n.logger.Error("dial handshake error", err)
-			continue
-		}
-		n.addPeer(c, v)
-
-	}
-	return nil
-}
-
-func (n *Node) Start(listenAddr string) error {
+func (n *Node) Start(listenAddr string, bootstrapNodes []string) error {
 	n.listenAddr = listenAddr
 
 	var (
@@ -89,9 +50,15 @@ func (n *Node) Start(listenAddr string) error {
 		return err
 	}
 	proto.RegisterNodeServer(grpcServer, n)
-	//fmt.Println("node running on port: ", ":3000")
-	//n.logger.Infof("node running on port %s: ", n.listenAddr)
+
 	n.logger.Infow("node running on", "port", n.listenAddr)
+
+	// bootstrap the network with alist of alreafdy known nodes
+	// in the network
+	if len(bootstrapNodes) > 0 {
+		go n.bootstrapNetwork(bootstrapNodes)
+	}
+
 	return grpcServer.Serve(ln)
 }
 
@@ -100,6 +67,9 @@ func (n *Node) Handshake(ctx context.Context, v *proto.Version) (*proto.Version,
 	if err != nil {
 		return nil, err
 	}
+
+	// do logic here before we accept the incomming connection as valid
+
 	n.addPeer(c, v)
 
 	//fmt.Printf("received verion from %s %+v\n", v, p.Addr)
@@ -113,12 +83,79 @@ func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*p
 	return &proto.Ack{}, nil
 }
 
+func (n *Node) addPeer(c proto.NodeClient, v *proto.Version) {
+	n.peerlock.Lock()
+	defer n.peerlock.Unlock()
+
+	// Handle the logic whwere we decided we except or  drop
+	// the incomming node connections
+
+	n.peers[c] = v
+
+	for _, addr := range v.PeerList {
+		if addr != n.listenAddr {
+			fmt.Printf("[%s] need to connect with %s \n", n.listenAddr, addr)
+		}
+
+	}
+	n.logger.Debugw(
+		"new peer succesfully connected",
+		"we", n.listenAddr,
+		"remote", v.ListenAddr,
+		"height", v.Height,
+	)
+
+}
+
+func (n *Node) deletePeer(c proto.NodeClient) {
+	n.peerlock.Lock()
+	defer n.peerlock.Unlock()
+	delete(n.peers, c)
+}
+
+func (n *Node) bootstrapNetwork(addrs []string) error {
+	for _, addr := range addrs {
+		c, v, err := n.dialRemoteNode(addr)
+		if err != nil {
+			return err
+		}
+		n.addPeer(c, v)
+
+	}
+	return nil
+}
+
+func (n *Node) dialRemoteNode(addr string) (proto.NodeClient, *proto.Version, error) {
+	c, err := makeNodeClient(addr)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	v, err := c.Handshake(context.Background(), n.getVersion())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return c, v, err
+}
+
 func (n *Node) getVersion() *proto.Version {
 	return &proto.Version{
 		Version:    "blocker-0.1",
 		Height:     0,
 		ListenAddr: n.listenAddr,
+		PeerList:   n.getPeerList(),
 	}
+}
+
+func (n *Node) getPeerList() []string {
+	n.peerlock.RLock()
+	defer n.peerlock.RUnlock()
+	peers := []string{}
+	for _, version := range n.peers {
+		peers = append(peers, version.ListenAddr)
+	}
+	return peers
 }
 
 func makeNodeClient(listenAddr string) (proto.NodeClient, error) {

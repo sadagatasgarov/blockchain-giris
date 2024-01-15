@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "logger elave etdik Peer To Peer with GRPC - circuit breaking & rate limiting- logger elave etik"
+	@git commit -m "Peer discovery hele nodleri refector edirik"
 	@git push -u origin main
 
 .PHONY: proto

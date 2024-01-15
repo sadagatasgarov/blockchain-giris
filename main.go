@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"gitlab.com/sadagatasgarov/bchain/node"
 	"gitlab.com/sadagatasgarov/bchain/proto"
@@ -12,20 +13,25 @@ import (
 
 func main() {
 	makeNode(":3000", []string{})
+	time.Sleep(1 * time.Second)
 	makeNode(":4000", []string{":3000"})
+	time.Sleep(4 * time.Second)
+	makeNode(":5000", []string{":4000"})
 
-	//makeNode(":5000", []string{":4000"})
+
+	// go func() {
+	// 	for {
+	// 		time.Sleep(4 * time.Second)
+	// 		//makeTransaction()
+	// 	}
+	// }()
+
 	select {}
 }
 
 func makeNode(listenAddr string, bootstrapNodes []string) *node.Node {
 	n := node.NewNode()
-	go n.Start(listenAddr)
-	if len(bootstrapNodes) > 0 {
-		if err := n.BootstrapNetwork(bootstrapNodes); err != nil {
-			log.Fatal(err)
-		}
-	}
+	go n.Start(listenAddr, bootstrapNodes)
 	return n
 }
 

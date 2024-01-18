@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "Peer discovery hele nodleri refector edirik23.59"
+	@git commit -m "Peer discovery tamamlandi"
 	@git push -u origin main
 
 .PHONY: proto

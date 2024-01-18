@@ -69,7 +69,6 @@ func (n *Node) Handshake(ctx context.Context, v *proto.Version) (*proto.Version,
 	}
 
 	// do logic here before we accept the incomming connection as valid
-
 	n.addPeer(c, v)
 
 	//fmt.Printf("received verion from %s %+v\n", v, p.Addr)
@@ -103,7 +102,7 @@ func (n *Node) addPeer(c proto.NodeClient, v *proto.Version) {
 	//// 	}
 
 	if len(v.PeerList) > 0 {
-		n.bootstrapNetwork(v.PeerList)
+		go n.bootstrapNetwork(v.PeerList)
 	}
 
 	n.logger.Debugw(
@@ -122,18 +121,23 @@ func (n *Node) deletePeer(c proto.NodeClient) {
 }
 
 func (n *Node) bootstrapNetwork(addrs []string) error {
-	n.logger.Debugw(
-		"dialing remote node",
-		"we", n.listenAddr,
-		"remote", addrs,
-	)
 	for _, addr := range addrs {
+		// if addr == n.listenAddr {
+		// 	continue
+		// }
+		if !n.canConnectWith(addr){
+			continue
+		}
+		n.logger.Debugw(
+			"dialing remote nodeboot",
+			"we", n.listenAddr,
+			"remote", addr,
+		)
 		c, v, err := n.dialRemoteNode(addr)
 		if err != nil {
 			return err
 		}
 		n.addPeer(c, v)
-
 	}
 	return nil
 }
@@ -149,7 +153,7 @@ func (n *Node) dialRemoteNode(addr string) (proto.NodeClient, *proto.Version, er
 		return nil, nil, err
 	}
 
-	return c, v, err
+	return c, v, nil
 }
 
 func (n *Node) getVersion() *proto.Version {
@@ -159,6 +163,21 @@ func (n *Node) getVersion() *proto.Version {
 		ListenAddr: n.listenAddr,
 		PeerList:   n.getPeerList(),
 	}
+}
+
+func (n *Node) canConnectWith(addr string) bool {
+	if n.listenAddr == addr {
+		return false
+	}
+
+	connectedPeers := n.getPeerList()
+	for _, connectAddr := range connectedPeers {
+		if addr == connectAddr {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (n *Node) getPeerList() []string {

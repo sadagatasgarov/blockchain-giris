@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "Peer discovery tamamlandi"
+	@git commit -m "Blockchain data structure 19.06"
 	@git push -u origin main
 
 .PHONY: proto

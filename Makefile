@@ -14,7 +14,7 @@ proto:
 
 git:
 	@git add .
-	@git commit -m "Blockchain data structure 19.06"
+	@git commit -m "Blockchain data structure 27.22"
 	@git push -u origin main
 
 .PHONY: proto

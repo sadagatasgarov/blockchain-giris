@@ -2,8 +2,10 @@ package node
 
 import (
 	"encoding/hex"
+	"fmt"
 
 	"gitlab.com/sadagatasgarov/bchain/proto"
+	"gitlab.com/sadagatasgarov/bchain/types"
 )
 
 type HeaderList struct {
@@ -18,6 +20,13 @@ func NewHeaderList() *HeaderList {
 
 func (list *HeaderList) Add(h *proto.Header) {
 	list.headers = append(list.headers, h)
+}
+
+func (list *HeaderList) Get(index int) *proto.Header {
+	if index > list.Height() {
+		panic("index too high!")
+	}
+	return list.headers[index]
 }
 
 func (list *HeaderList) Height() int {
@@ -37,11 +46,17 @@ type Chain struct {
 func NewChain(bs BlockStorer) *Chain {
 	return &Chain{
 		blockstore: bs,
-		headers: NewHeaderList(),
+		headers:    NewHeaderList(),
 	}
 }
 
+func (c *Chain) Height() int {
+	return c.headers.Height()
+}
+
 func (c *Chain) AddBlock(b *proto.Block) error {
+	// Add the header to the list of headers
+	c.headers.Add(b.Header)
 	// validation
 	return c.blockstore.Put(b)
 }
@@ -52,6 +67,11 @@ func (c *Chain) GetBlockByHash(hash []byte) (*proto.Block, error) {
 }
 
 func (c *Chain) GetBlockByHeight(height int) (*proto.Block, error) {
+	if c.Height() > height {
+		return nil, fmt.Errorf("given height (%d) too high - height (%d)", height, c.Height())
+	}
 
-	return nil, nil
+	header := c.headers.Get(height)
+	hash := types.HashHeader(header)
+	return c.GetBlockByHash(hash)
 }

@@ -1,7 +1,6 @@
 package types
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,11 +46,11 @@ func TestNewTransaction(t *testing.T) {
 		Outputs: []*proto.TxOutput{output1, output2},
 	}
 
-	sig:=SignTransaction(fromPrivKey, tx)
+	sig := SignTransaction(fromPrivKey, tx)
 
 	input.Signature = sig.Bytes()
 
-	fmt.Printf("%+v\n", tx)
+	//fmt.Printf("%+v\n", tx)
 
 	assert.True(t, VerifyTransaction(tx))
 

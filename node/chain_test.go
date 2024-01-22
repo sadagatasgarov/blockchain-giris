@@ -8,6 +8,15 @@ import (
 	"gitlab.com/sadagatasgarov/bchain/util"
 )
 
+func TestChainHeight(t *testing.T) {
+	chain:=NewChain(NewMemoryBlockStore())
+	for i := 0; i < 1000; i++ {
+		b := util.RandomBlock()
+		assert.Nil(t, chain.AddBlock(b))
+		assert.Equal(t, chain.Height(), i)
+	}
+}
+
 func TestAddBlock(t *testing.T) {
 	bs := NewMemoryBlockStore()
 	chain := NewChain(bs)
@@ -19,6 +28,9 @@ func TestAddBlock(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, block, fetchedBlock)
 
-	// fetchedBlockByHeight, err := chain.GetBlockByHeight()
+	fetchedBlockByHeight, err := chain.GetBlockByHeight(0)
+	
+	assert.Nil(t, err)
+	assert.Equal(t, block, fetchedBlockByHeight)
 
 }

@@ -9,7 +9,7 @@ import (
 )
 
 func TestChainHeight(t *testing.T) {
-	chain:=NewChain(NewMemoryBlockStore())
+	chain := NewChain(NewMemoryBlockStore())
 	for i := 0; i < 1000; i++ {
 		b := util.RandomBlock()
 		assert.Nil(t, chain.AddBlock(b))
@@ -18,19 +18,26 @@ func TestChainHeight(t *testing.T) {
 }
 
 func TestAddBlock(t *testing.T) {
-	bs := NewMemoryBlockStore()
-	chain := NewChain(bs)
-	block := util.RandomBlock()
-	blockHash := types.HashBlock(block)
-
-	assert.Nil(t, chain.AddBlock(block))
-	fetchedBlock, err := chain.GetBlockByHash(blockHash)
-	assert.Nil(t, err)
-	assert.Equal(t, block, fetchedBlock)
-
-	fetchedBlockByHeight, err := chain.GetBlockByHeight(0)
+	var (
+		bs    = NewMemoryBlockStore()
+		chain = NewChain(bs)
+	)
 	
-	assert.Nil(t, err)
-	assert.Equal(t, block, fetchedBlockByHeight)
+	for i := 0; i < 100; i++ {
+		var (
+			block     = util.RandomBlock()
+			blockHash = types.HashBlock(block)
+		)
 
+		assert.Nil(t, chain.AddBlock(block))
+
+		fetchedBlock, err := chain.GetBlockByHash(blockHash)
+		assert.Nil(t, err)
+		assert.Equal(t, block, fetchedBlock)
+
+		fetchedBlockByHeight, err := chain.GetBlockByHeight(i)
+		assert.Nil(t, err)
+		assert.Equal(t, block, fetchedBlockByHeight)
+
+	}
 }
